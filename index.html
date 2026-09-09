@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="工作台">
+  <title>个人工作台</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+  <link rel="stylesheet" href="style.css?v=17">
+</head>
+<body>
+  <!-- 侧边栏遮罩层（手机端） -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="app">
+    <!-- 顶部栏 -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle" aria-label="菜单">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1 class="logo">📊 个人工作台</h1>
+      </div>
+      <div class="topbar-center">
+        <span class="date-text" id="dateText"></span>
+        <span class="time-text" id="timeText"></span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-install" id="installBtn" title="安装到手机">
+          📱 安装
+        </button>
+        <button class="btn-refresh" id="refreshNews" title="刷新当前页面">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          刷新
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- 左侧导航栏 -->
+      <nav class="sidebar">
+        <button class="nav-item active" data-view="plan">
+          <span class="nav-icon">📋</span>
+          <span class="nav-text">每日计划</span>
+        </button>
+        <button class="nav-item" data-view="cls">
+          <span class="nav-icon">⚡</span>
+          <span class="nav-text">财联社电报</span>
+        </button>
+        <button class="nav-item" data-view="eastmoney">
+          <span class="nav-icon">📰</span>
+          <span class="nav-text">东方财富快讯</span>
+        </button>
+        <button class="nav-item" data-view="market-review">
+          <span class="nav-icon">📈</span>
+          <span class="nav-text">股市复盘</span>
+        </button>
+        <button class="nav-item" data-view="kpl">
+          <span class="nav-icon">🪜</span>
+          <span class="nav-text">开盘啦情绪</span>
+        </button>
+        <button class="nav-item" data-view="meditation">
+          <span class="nav-icon">🧘</span>
+          <span class="nav-text">冥想课程</span>
+        </button>
+        <button class="nav-item" data-view="reading">
+          <span class="nav-icon">📖</span>
+          <span class="nav-text">看书任务</span>
+        </button>
+        <button class="nav-item" data-view="momentum">
+          <span class="nav-icon">🌊</span>
+          <span class="nav-text">主升浪选股</span>
+        </button>
+        <button class="nav-item" data-view="hot-stock">
+          <span class="nav-icon">🔥</span>
+          <span class="nav-text">热门股分析</span>
+        </button>
+      </nav>
+
+      <!-- 右侧内容区 -->
+      <section class="content-area">
+        <!-- 每日计划 - 看板模式 -->
+        <div class="view active" id="view-plan">
+          <!-- 视图头部 -->
+          <div class="view-header">
+            <div class="view-header-text">
+              <h2 class="view-title">📋 每日计划</h2>
+              <div class="view-subtitle">日课 + 今日待办 · 自动生成每日固定任务</div>
+            </div>
+          </div>
+          <!-- 顶部数据概览 -->
+          <div class="kanban-stats-bar">
+            <div class="kanban-stat-card">
+              <div class="kanban-stat-icon">📋</div>
+              <div class="kanban-stat-info">
+                <div class="kanban-stat-value" id="statTotal">0</div>
+                <div class="kanban-stat-label">今日任务</div>
+              </div>
+            </div>
+            <div class="kanban-stat-card">
+              <div class="kanban-stat-icon" style="background:var(--green-light)">✅</div>
+              <div class="kanban-stat-info">
+                <div class="kanban-stat-value" id="statDone" style="color:var(--green)">0</div>
+                <div class="kanban-stat-label">已完成</div>
+              </div>
+            </div>
+            <div class="kanban-stat-card">
+              <div class="kanban-stat-icon" style="background:var(--amber-light)">⏳</div>
+              <div class="kanban-stat-info">
+                <div class="kanban-stat-value" id="statPending" style="color:var(--amber)">0</div>
+                <div class="kanban-stat-label">待完成</div>
+              </div>
+            </div>
+            <div class="kanban-stat-card">
+              <div class="kanban-stat-icon" style="background:var(--primary-light)">📊</div>
+              <div class="kanban-stat-info">
+                <div class="kanban-stat-value" id="statRate" style="color:var(--primary)">0%</div>
+                <div class="kanban-stat-label">完成率</div>
+              </div>
+            </div>
+          </div>
+          <!-- 进度条 -->
+          <div class="kanban-progress-bar">
+            <div class="kanban-progress-fill" id="kanbanProgressFill" style="width:0%"></div>
+          </div>
+          <!-- 看板区域 -->
+          <div class="kanban-board" id="kanbanBoard">
+            <!-- 个人日常列 -->
+            <div class="kanban-column">
+              <div class="kanban-column-header">
+                <span class="kanban-column-title">📌 个人日常</span>
+                <span class="kanban-column-count" id="presetCount">0</span>
+              </div>
+              <div class="kanban-column-subtitle">已预置你的日课</div>
+              <div class="kanban-card-list" id="presetColumn"></div>
+            </div>
+            <!-- 今日待办列 -->
+            <div class="kanban-column">
+              <div class="kanban-column-header">
+                <span class="kanban-column-title">📝 今日待办</span>
+                <span class="kanban-column-count" id="todoCount">0</span>
+              </div>
+              <div class="kanban-column-subtitle">自定义任务</div>
+              <div class="kanban-card-list" id="todoColumn"></div>
+              <div class="kanban-add-area">
+                <input type="text" class="kanban-add-input" id="taskInput" placeholder="+ 添加任务，回车确认..." maxlength="200">
+                <select class="kanban-priority-select" id="taskPriority">
+                  <option value="high">🔴 高</option>
+                  <option value="medium" selected>🟡 中</option>
+                  <option value="low">🟢 低</option>
+                </select>
+              </div>
+            </div>
+            <!-- 已完成列 -->
+            <div class="kanban-column kanban-column-done">
+              <div class="kanban-column-header">
+                <span class="kanban-column-title">✅ 已完成</span>
+                <span class="kanban-column-count" id="doneCount">0</span>
+              </div>
+              <div class="kanban-column-subtitle">今日成就</div>
+              <div class="kanban-card-list" id="doneColumn"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 财联社电报 -->
+        <div class="view" id="view-cls">
+          <div class="view-header">
+            <div class="view-header-text">
+              <h2 class="view-title">⚡ 财联社电报</h2>
+              <div class="view-subtitle">7×24小时实时财经快讯 · 新浪财经数据源</div>
+            </div>
+            <span class="news-update-time" id="clsUpdateTime">--</span>
+          </div>
+          <div class="news-list" id="clsNewsList">
+            <div class="news-loading">加载中...</div>
+          </div>
+        </div>
+
+        <!-- 东方财富快讯 -->
+        <div class="view" id="view-eastmoney">
+          <div class="view-header">
+            <div class="view-header-text">
+              <h2 class="view-title">📰 东方财富快讯</h2>
+              <div class="view-subtitle">A股市场新闻 · 个股动态 · 宏观资讯</div>
+            </div>
+            <span class="news-update-time" id="emUpdateTime">--</span>
+          </div>
+          <div class="news-list" id="emNewsList">
+            <div class="news-loading">加载中...</div>
+          </div>
+        </div>
+
+        <!-- 开盘啦情绪 -->
+        <div class="view" id="view-kpl">
+          <div class="view-header">
+            <div class="view-header-text">
+              <h2 class="view-title">🪜 开盘啦情绪</h2>
+              <div class="view-subtitle">市场情绪 · 涨停天梯 · 题材风口（数据源自开盘啦，非官方接口，仅供学习参考）</div>
+            </div>
+            <span class="news-update-time" id="kplUpdateTime">--</span>
+          </div>
+          <div id="kplEmotionBar"></div>
+          <div class="kpl-section">
+            <h3 class="kpl-section-title">🪜 涨停天梯</h3>
+            <div id="kplLadder"><div class="news-loading">加载中...</div></div>
+          </div>
+          <div class="kpl-section">
+            <h3 class="kpl-section-title">🔥 题材风口 · 涨停原因</h3>
+            <div id="kplReasons"><div class="news-loading">加载中...</div></div>
+          </div>
+        </div>
+
+        <!-- 股市复盘 -->
+        <div class="view" id="view-market-review">
+          <div class="view-header">
+            <div class="view-header-text">
+              <h2 class="view-title">📈 股市复盘</h2>
+              <div class="view-subtitle">每日 15:01 自动生成 · 市场结构 / 涨跌停 / 连板高度 / 情绪周期</div>
+            </div>
+            <div class="header-right">
+              <button class="btn-review-gen" id="genReviewBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/><polyline points="21 4 21 10 15 10"/></svg>
+                生成今日复盘
+              </button>
+              <span class="news-update-time" id="reviewUpdateTime">--</span>
+            </div>
+          </div>
+          <div class="review-container" id="reviewContainer">
+            <div class="news-loading">加载中...</div>
+          </div>
+        </div>
+
+        <!-- 冥想课程 -->
+        <div class="view" id="view-meditation">
+          <div class="view-header">
+            <div class="view-header-text">
+              <h2 class="view-title">🧘 冥想课程</h2>
+              <div class="view-subtitle">专注呼吸 · 觉察当下 · 循序渐进</div>
+            </div>
+            <span class="meditation-streak" id="meditationStreak">今日尚未冥想</span>
+          </div>
+          <div class="meditation-content">
+            <!-- 冥想计时器 -->
+            <div class="meditation-timer-section">
+              <div class="meditation-circle-wrapper">
+                <div class="meditation-circle" id="meditationCircle">
+                  <div class="meditation-circle-inner" id="meditationCircleInner">
+                    <div class="meditation-time-display" id="meditationTimeDisplay">
+                      <span class="med-time" id="medTime">30:00</span>
+                      <span class="med-label" id="medLabel">准备开始</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="meditation-controls">
+                <button class="med-btn" id="medStart">开始冥想</button>
+                <button class="med-btn med-btn-secondary" id="medPause" style="display:none">暂停</button>
+                <button class="med-btn med-btn-danger" id="medStop" style="display:none">结束</button>
+              </div>
+            </div>
+
+            <!-- 冥想模式选择 -->
+            <div class="meditation-modes">
+              <div class="mode-section-title">选择冥想模式</div>
+              <div class="mode-grid">
+                <div class="mode-card active" data-mode="breathing" data-minutes="30">
+                  <div class="mode-icon">🌬️</div>
+                  <div class="mode-name">呼吸冥想</div>
+                  <div class="mode-desc">专注于呼吸节奏，30分钟</div>
+                </div>
+                <div class="mode-card" data-mode="body-scan" data-minutes="30">
+                  <div class="mode-icon">💫</div>
+                  <div class="mode-name">身体扫描</div>
+                  <div class="mode-desc">从头到脚感受身体，30分钟</div>
+                </div>
+                <div class="mode-card" data-mode="mindfulness" data-minutes="30">
+                  <div class="mode-icon">🌸</div>
+                  <div class="mode-name">正念冥想</div>
+                  <div class="mode-desc">觉察当下思绪，30分钟</div>
+                </div>
+                <div class="mode-card" data-mode="custom" data-minutes="0">
+                  <div class="mode-icon">⏱️</div>
+                  <div class="mode-name">自定义</div>
+                  <div class="mode-desc">设置自己的时间</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 自定义时间输入 -->
+            <div class="meditation-custom-time" id="medCustomTime" style="display:none">
+              <label>冥想时长（分钟）：</label>
+              <input type="number" id="medCustomMinutes" min="1" max="120" value="30" class="med-input">
+              <button class="med-btn med-btn-small" id="medSetCustom">设置</button>
+            </div>
+
+            <!-- 21天初学者冥想计划 -->
+            <div class="meditation-plan-section">
+              <div class="mode-section-title">
+                <span>🧘 21天初学者冥想计划</span>
+                <span class="plan-subtitle">从5分钟到20分钟，循序渐进</span>
+              </div>
+              <div class="book-plan-container" id="medPlanContainer"></div>
+            </div>
+
+            <!-- 冥想记录 -->
+            <div class="meditation-history">
+              <div class="mode-section-title">冥想记录</div>
+              <div class="med-history-list" id="medHistoryList">
+                <div class="med-empty">暂无记录，开始你的第一次冥想吧</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 看书任务 -->
+        <div class="view" id="view-reading">
+          <div class="view-header">
+            <div class="view-header-text">
+              <h2 class="view-title">📖 看书任务</h2>
+              <div class="view-subtitle">每日 30 分钟 · 33 天读完《第一性原理》（萧亮 著）</div>
+            </div>
+            <span class="reading-streak" id="readingStreak">今日尚未阅读</span>
+          </div>
+          <div class="reading-content">
+            <!-- 阅读计时器 -->
+            <div class="reading-timer-section">
+              <div class="reading-timer-display">
+                <div class="reading-timer-icon">📚</div>
+                <div class="reading-timer-time" id="readingTimeDisplay">30:00</div>
+                <div class="reading-timer-label" id="readingTimerLabel">准备开始</div>
+              </div>
+              <div class="reading-controls">
+                <button class="med-btn" id="readStart">开始阅读</button>
+                <button class="med-btn med-btn-secondary" id="readPause" style="display:none">暂停</button>
+                <button class="med-btn med-btn-danger" id="readStop" style="display:none">结束</button>
+              </div>
+            </div>
+
+            <!-- 第一性原理阅读计划 -->
+            <div class="book-plan-section">
+              <div class="mode-section-title">
+                <span>📖 《第一性原理》阅读计划</span>
+                <span class="plan-subtitle">每日30分钟 · 6章 × 5天 + 3次复习 = 33天</span>
+              </div>
+              <div class="book-plan-container" id="bookPlanContainer"></div>
+            </div>
+
+            <!-- 当前阅读书籍 -->
+            <div class="reading-book-section">
+              <div class="mode-section-title">当前书籍</div>
+              <div class="book-input-area">
+                <input type="text" class="book-input" id="bookInput" placeholder="书名..." maxlength="100">
+                <input type="number" class="book-page-input" id="bookPageInput" placeholder="当前页" min="0">
+                <input type="number" class="book-total-input" id="bookTotalInput" placeholder="总页数" min="1">
+                <button class="med-btn med-btn-small" id="addBookBtn">添加书籍</button>
+              </div>
+              <div class="book-list" id="bookList">
+                <div class="med-empty">还没有添加书籍</div>
+              </div>
+            </div>
+
+            <!-- 阅读记录 -->
+            <div class="reading-history-section">
+              <div class="mode-section-title">阅读记录</div>
+              <div class="read-history-list" id="readHistoryList">
+                <div class="med-empty">暂无记录</div>
+              </div>
+            </div>
+
+            <!-- 阅读统计 -->
+            <div class="reading-stats-section">
+              <div class="mode-section-title">阅读统计</div>
+              <div class="reading-stats-grid" id="readingStatsGrid">
+                <div class="reading-stat-card">
+                  <div class="reading-stat-value" id="totalReadSessions">0</div>
+                  <div class="reading-stat-label">总阅读次数</div>
+                </div>
+                <div class="reading-stat-card">
+                  <div class="reading-stat-value" id="totalReadMinutes">0</div>
+                  <div class="reading-stat-label">总阅读分钟</div>
+                </div>
+                <div class="reading-stat-card">
+                  <div class="reading-stat-value" id="readStreakDays">0</div>
+                  <div class="reading-stat-label">连续阅读天数</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 主升浪选股 -->
+        <div class="view" id="view-momentum">
+          <div class="view-header">
+            <div class="view-header-text">
+              <h2 class="view-title">🌊 主升浪选股</h2>
+              <div class="view-subtitle">每日 09:45 电脑端自动筛选 · 10 条技术面条件评分（满分100）· 仅展示 ≥59 分标的</div>
+            </div>
+            <div class="header-right">
+              <select class="mm-date-select" id="momentumDateSelect"></select>
+              <button class="mm-refresh-btn" id="momentumReloadBtn">🔄 重新加载</button>
+              <span class="news-update-time" id="momentumUpdateTime">--</span>
+            </div>
+          </div>
+          <div id="momentumContainer">
+            <div class="mm-loading">点击左侧"主升浪选股"加载最近一期报告</div>
+          </div>
+        </div>
+
+        <!-- 热门股分析 -->
+        <div class="view" id="view-hot-stock">
+          <div class="view-header">
+            <div class="view-header-text">
+              <h2 class="view-title">🔥 今日热门股分析</h2>
+              <div class="view-subtitle">每日自动选取市场热门股 · 基本面 / 技术面 / 市场情绪 / 风险评估 全方位解析</div>
+            </div>
+            <div class="header-right">
+              <button class="btn-review-gen" id="genHotStockBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/><polyline points="21 4 21 10 15 10"/></svg>
+                重新分析
+              </button>
+              <button class="btn-review-gen" id="changeStockBtn" style="background:var(--amber-light);color:var(--amber);border-color:var(--amber)">
+                🔄 换一只
+              </button>
+              <span class="news-update-time" id="hotStockUpdateTime">--</span>
+            </div>
+          </div>
+          <div class="hot-stock-container" id="hotStockContainer">
+            <div class="news-loading">点击"重新分析"生成今日热门股分析报告</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- PWA 安装二维码弹窗 -->
+  <div class="qr-modal-overlay" id="qrModalOverlay">
+    <div class="qr-modal">
+      <button class="qr-modal-close" id="qrModalClose">✕</button>
+      <div class="qr-modal-title">📱 安装到手机</div>
+      <div class="qr-modal-desc">用手机扫描下方二维码，在浏览器中打开后选择"添加到主屏幕"即可安装应用</div>
+      <div class="qr-code-wrapper" id="qrCodeWrapper">
+        <div class="qr-loading">生成二维码中...</div>
+      </div>
+      <div class="qr-url" id="qrUrl"></div>
+      <div class="qr-tips">
+        <p>☁️ 云端版 - 任何网络都能访问</p>
+        <p>1. 用手机扫描上方二维码打开工作台</p>
+        <p>2. 在 Safari/Chrome 中点击"分享" → "添加到主屏幕"</p>
+        <p>3. 安装后可像原生 App 一样使用，无需电脑开机</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="cloud-adapter.js?v=6"></script>
+  <script src="app.js?v=17"></script>
+  <script src="momentum.js?v=2"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function (err) {
+          console.log('SW 注册失败:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
