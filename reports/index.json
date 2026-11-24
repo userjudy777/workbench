@@ -1,6 +1,10 @@
 {
   "reports": [
     {
+      "date": "2026-11-24",
+      "file": "screen_result_20261124.json"
+    },
+    {
       "date": "2026-11-23",
       "file": "screen_result_20261123.json"
     },
@@ -35,10 +39,6 @@
     {
       "date": "2026-11-11",
       "file": "screen_result_20261111.json"
-    },
-    {
-      "date": "2026-11-10",
-      "file": "screen_result_20261110.json"
     }
   ]
 }
